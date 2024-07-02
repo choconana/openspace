@@ -20,7 +20,7 @@ func proofOfWork(zeroString string, isPrinted bool) [32]byte {
 	startTime := time.Now()
 	var finalHash [32]byte
 	for {
-		//真随机数耗时太长
+		// The generation of crypto random costs too much
 		//nonce, _ := rand.Int(rand.Reader, big.NewInt(16))
 		nonce := mrand.Int()
 		raw := strings.Join([]string{nickName, strconv.Itoa(nonce)}, "")
