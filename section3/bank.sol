@@ -85,6 +85,9 @@ contract Bank {
         delete richests;
         address[] memory copyArr = depositorsIndex;
         uint len = copyArr.length;
+
+        require(len > 0, "there're no depositors");
+
         address zeroAddr = address(0x0);
         for (uint i = 0; i < n; i++) {
             uint256 maxAmt = 0;
@@ -100,6 +103,7 @@ contract Bank {
                     maxIndex = j;
                 }
             }
+            richests[i] = copyArr[maxIndex];
             copyArr[maxIndex] = address(zeroAddr);
         }
     }
