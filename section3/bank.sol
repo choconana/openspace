@@ -8,8 +8,6 @@ contract Bank {
     mapping(address => bool) admins;
     // 存储储户金额
     mapping(address => uint256) depositors;
-    // 用于遍历depositors
-    address[] depositorsIndex;
     // 记录存款最多的3名用户
     address[3] richests;
 
@@ -28,11 +26,6 @@ contract Bank {
         _;
     }
 
-    modifier sort {
-        _;
-        topN(3);
-    }
-
     // 添加管理员
     function addAdmin(address addr) public isOwner {
         admins[addr] = true;
@@ -43,8 +36,18 @@ contract Bank {
         admins[addr] = false;
     }
 
-    // 存款
-    function deposit() public sort payable {
+    // 提现
+    function withdraw() public isAdmin payable {
+        payable(msg.sender).transfer(getBalance());
+    }
+
+
+    // 获取存款金额最多的前3名用户
+    function getTop3Richest() public view returns (address[3] memory) {
+        return richests;
+    }
+
+    receive() external payable {
         require(msg.sender.balance > 0, "the balance should greater than 0");
 
         address depositor = msg.sender;
@@ -55,73 +58,25 @@ contract Bank {
         } else {
             // 记录储户首次操作信息
             depositors[depositor] = amt;
-            depositorsIndex.push(depositor);
         }
-    }
-
-    // 提现
-    function withdraw() public isAdmin payable returns (bool) {
-        return withdraw2Addr(payable(msg.sender));
-    }
-
-    // 提现到指定账户
-    function withdraw2Addr(address payable addr) public isAdmin payable returns (bool) {
         
-        addr.transfer(getBalance());
+        address curUser = depositor;
+        uint curAmt = depositors[depositor];
+        for (uint i = 0; i < 3; i++) {
+            if (curAmt <= depositors[richests[i]]) {
+                continue;
+            } else {
+                curAmt = depositors[richests[i]];
 
-        // 提现成功再扣除存款余额
-        uint len = depositorsIndex.length;
-        for (uint i = 0; i < len; i++) {
-            address depositor = depositorsIndex[i];
-            depositors[depositor] = 0;
-        }
-        // 清空排序记录
-        delete richests;
-        return true;
-    }
-
-    // 根据存款金额对用户进行排序
-    function topN(uint n) internal {
-        delete richests;
-        address[] memory copyArr = depositorsIndex;
-        uint len = copyArr.length;
-
-        require(len > 0, "there're no depositors");
-
-        address zeroAddr = address(0x0);
-        for (uint i = 0; i < n; i++) {
-            uint256 maxAmt = 0;
-            uint maxIndex = 0;
-            for (uint j = 0; j < len; j++) {
-                address richest = copyArr[j];
-                if (zeroAddr == richest) {
-                    continue;
-                }
-                if (depositors[richest] >= maxAmt) {
-                    maxAmt = depositors[richest];
-                    richests[i] = richest;
-                    maxIndex = j;
-                }
+                address tmpUser = curUser;
+                curUser = richests[i];
+                richests[i] = tmpUser;
             }
-            richests[i] = copyArr[maxIndex];
-            copyArr[maxIndex] = address(zeroAddr);
         }
     }
-
-    // 获取存款金额最多的前3名用户
-    function getTop3Richest() public view returns (address[3] memory) {
-        return richests;
-    }
-
-    // 用户获取自己存款金额
-    function getSelfBalance() public view returns (uint) {
-        return depositors[msg.sender];
-    }
-
-    receive() external payable {}
     fallback() external payable {}
     
-    function getBalance() public view returns (uint) {
+    function getBalance() internal view returns (uint) {
         return address(this).balance;
     }
 }
