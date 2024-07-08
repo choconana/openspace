@@ -16,13 +16,15 @@ contract BaseERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
+    error BalanceInsufficient();
+
     constructor() {
         // write your code here
         // set name,symbol,decimals,totalSupply
         name = "BaseERC20";
         symbol = "BERC20";
         decimals = 18;
-        totalSupply = 1000000;
+        totalSupply = 100000000000000000000000000;
         balances[msg.sender] = totalSupply;  
     }
 
@@ -33,6 +35,7 @@ contract BaseERC20 {
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
         // write your code here
+        require(balances[msg.sender] >= _value, "ERC20: transfer amount exceeds balance");
         transferFrom(msg.sender, _to, _value);
 
         emit Transfer(msg.sender, _to, _value);
@@ -41,13 +44,14 @@ contract BaseERC20 {
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         // write your code here
+        require(_value <= totalSupply, "ERC20: transfer amount exceeds balance");
         require(_from != address(0x0), "invalid sender");
         require(_to != address(0x0), "invalid receiver");
         require(balances[_from] >= _value, "balance not enough");
         require(_value != 0 && balances[_to] < balances[_to] + _value, "calculation overflow");
-
+        
         if (msg.sender != _from) {
-            require(allowances[_from][msg.sender] >= _value, "allowance not enough");
+            require(allowances[_from][msg.sender] >= _value, "ERC20: transfer amount exceeds allowance");
             allowances[_from][msg.sender] -= _value;
         }
 
