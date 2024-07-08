@@ -39,7 +39,7 @@ contract Bank is IBank {
     }
 
     // 提现
-    function withdraw(address payable account) external payable isAdmin virtual {
+    function withdraw(address payable account) external isAdmin {
         account.transfer(getBalance());
     }
 

@@ -14,10 +14,6 @@ contract BigBank is Bank {
         _;
     }
 
-    function withdraw(address payable account) external payable isAdmin override {
-        account.transfer(address(this).balance);
-    }
-
     receive() external payable amtCheck override {
         deposit();
     }
