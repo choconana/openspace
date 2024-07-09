@@ -30,6 +30,7 @@ contract ERC721Market {
         // 卖家支付coin
         bool success = coin.transferFrom(msg.sender, owner, amount);
         require(success, "pay failed");
+        buyers[tokenId] = msg.sender;
 
         // ntf所有者从买家转为卖家
         nft.transferFrom(owner, msg.sender, tokenId);

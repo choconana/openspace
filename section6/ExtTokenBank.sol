@@ -10,4 +10,9 @@ contract ExtTokenBank is TokenBank, TokenRecipient {
         emit Log(account, amount);
         return true;
     }
+
+    function tokenReceivedWithData(address account, uint256 amount, bytes memory data) external pure returns (bool success) {
+        return true;
+    }
+
 }
