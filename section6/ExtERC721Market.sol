@@ -24,11 +24,13 @@ contract ERC721Market is TokenRecipient {
         tokens[tokenId] = amount;
     }
 
-    function buy(address owner, uint256 tokenId, uint256 amount) internal {
+    function buy(address account, uint256 tokenId, uint256 amount) internal {
         require(amount == tokens[tokenId], "amount incorrect");
-    
+
+        address owner = nft.ownerOf(tokenId);
+        buyers[tokenId] = account;
         // ntf所有者从买家转为卖家
-        nft.transferFrom(owner, msg.sender, tokenId);
+        nft.transferFrom(owner, account, tokenId);
         
     }
 
@@ -39,12 +41,8 @@ contract ERC721Market is TokenRecipient {
     function tokenReceivedWithData(address account, uint256 amount, bytes memory data) external returns (bool success) {
         require(msg.sender == address(coin), "no authority");
         uint256 tokenId = abi.decode(data, (uint256));
-        address owner = nft.ownerOf(tokenId);
-
-        require(account == owner, "nft owner incorrect");
-
-        buyers[tokenId] = msg.sender;
-        buy(owner, tokenId, amount);
+        
+        buy(account, tokenId, amount);
         return true;
     }
 
