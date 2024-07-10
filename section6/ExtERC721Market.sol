@@ -37,6 +37,7 @@ contract ERC721Market is TokenRecipient {
     }
 
     function tokenReceivedWithData(address account, uint256 amount, bytes memory data) external returns (bool success) {
+        require(msg.sender == address(coin), "no authority");
         uint256 tokenId = abi.decode(data, (uint256));
         address owner = nft.ownerOf(tokenId);
 
