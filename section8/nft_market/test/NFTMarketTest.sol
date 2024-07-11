@@ -81,20 +81,26 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
         token.transferCallbackWithData(address(nftMarket), price, abi.encode(tokenId));
         
         vm.assertEq(0, token.balanceOf(address(nftMarket)));
-
+        vm.assertEq(price, token.balanceOf(seller));
+        vm.assertEq(buyer, nft.ownerOf(tokenId));
     }
 
     // 卖家购买自己出售的nft
     function test_buy_by_self() public {
+        uint256 sellerBalance = 10e5;
         uint256 price = 100;
         forSale(seller, price);
 
-        assginToken(seller, 10e5);
+        assginToken(seller, sellerBalance);
 
         vm.expectEmit(true, true, false, true);
         emit Buy(seller, tokenId, price);
         vm.prank(seller);
         token.transferCallbackWithData(address(nftMarket), price, abi.encode(tokenId));
+
+        vm.assertEq(0, token.balanceOf(address(nftMarket)));
+        vm.assertEq(sellerBalance, token.balanceOf(seller));
+        vm.assertEq(seller, nft.ownerOf(tokenId));
     }
 
     // 不同买家重复购买同一个nft
@@ -113,6 +119,10 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
         vm.expectRevert(abi.encodeWithSelector(ERC721IncorrectOwner.selector, address(nftMarket), tokenId, buyer));
         vm.prank(buyer2);
         token.transferCallbackWithData(address(nftMarket), price, abi.encode(tokenId));
+
+        vm.assertEq(0, token.balanceOf(address(nftMarket)));
+        vm.assertEq(price, token.balanceOf(seller));
+        vm.assertEq(buyer, nft.ownerOf(tokenId));
     }
 
     // 购买nft金额错误测试

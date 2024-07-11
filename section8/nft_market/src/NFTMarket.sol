@@ -38,6 +38,8 @@ contract NFTMarket is IMarket, TokenRecipient {
         }
 
         address owner = nft.ownerOf(tokenId);
+        coin.transferFrom(account, owner, amount);
+
         buyers[tokenId] = account;
         // ntf所有者从买家转为卖家
         nft.transferFrom(owner, account, tokenId);
