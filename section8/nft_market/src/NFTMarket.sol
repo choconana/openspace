@@ -23,9 +23,10 @@ contract NFTMarket is IMarket, TokenRecipient {
 
     // 上架nft
     function forSale(uint256 tokenId, uint256 amount) public {
-        if (amount == 0) {
-            revert AmountIncorrect(msg.sender, tokenId, amount);
+        if (msg.sender != nft.ownerOf(tokenId)) {
+            revert NFTOwnerIncorrect(msg.sender, tokenId, nft.ownerOf(tokenId));
         }
+
         tokens[tokenId] = amount;
         emit ForSale(msg.sender, tokenId, amount);
     }
@@ -44,7 +45,7 @@ contract NFTMarket is IMarket, TokenRecipient {
         
     }
 
-    function tokenReceived(address account, uint256 amount) public returns (bool success) {
+    function tokenReceived(address account, uint256 amount) public pure returns (bool success) {
         return true;
     }
 

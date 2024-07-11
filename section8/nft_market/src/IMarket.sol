@@ -7,4 +7,6 @@ interface IMarket {
     event Buy(address indexed buyer, uint256 indexed tokenId, uint256 price);
 
     error AmountIncorrect(address account, uint256 tokenId, uint256 price);
+
+    error NFTOwnerIncorrect(address sender, uint256 tokenId, address owner);
 }

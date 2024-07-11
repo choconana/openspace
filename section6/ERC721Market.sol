@@ -20,21 +20,23 @@ contract ERC721Market {
     }
 
     function list(uint256 tokenId, uint256 amount) public {
+        require(msg.sender == nft.ownerOf(tokenId), "nft owner not right");
         tokens[tokenId] = amount;
     }
 
-    function buy(uint256 tokenId, uint256 amount) public {
-        require(amount == tokens[tokenId], "amount incorrect");
-
+    function buyNFT(uint256 tokenId) public {
         address owner = nft.ownerOf(tokenId);
+        require(owner != address(0x0), "address incorrect");
+
         // 卖家支付coin
-        bool success = coin.transferFrom(msg.sender, owner, amount);
+        bool success = coin.transferFrom(msg.sender, owner, tokens[tokenId]);
         require(success, "pay failed");
         buyers[tokenId] = msg.sender;
 
         // ntf所有者从买家转为卖家
         nft.transferFrom(owner, msg.sender, tokenId);
-        
+
+        delete tokens[tokenId];
     }
 
 }

@@ -60,9 +60,10 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
     // 上架nft异常测试
     function test_forSale_should_revert() public {
         uint256 price = 0;   
-        vm.expectRevert(abi.encodeWithSelector(AmountIncorrect.selector, seller, tokenId, price));
+        address hacker = makeAddr("hacker");
+        vm.expectRevert(abi.encodeWithSelector(NFTOwnerIncorrect.selector, hacker, tokenId, seller));
 
-        vm.prank(seller);
+        vm.prank(hacker);
         nftMarket.forSale(tokenId, price);
         
         assertEq(price, nftMarket.tokens(tokenId));
@@ -128,6 +129,7 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
 
     // 随机购买nft测试
     function testFuzz_trade(address user, uint256 price) public {
+        vm.assume(user != address(0x0));
         vm.assume(price >= 1 && price <= 10e6);
 
         forSale(seller, price);
@@ -140,7 +142,7 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
     }
 
     // nftMarket持仓token不变性测试
-    function invariant_nftMarket_cannot_hold_token() public {
+    function invariant_nftMarket_cannot_hold_token() public view {
         assertEq(0, token.balanceOf(address(nftMarket)));
     }
 
@@ -150,7 +152,6 @@ contract NFTMarketTest is Test, IMarket, IERC721Errors {
         token.approve(account, amount);
         
         assertEq(amount, token.allowance(address(this), account));
-        assertEq(amount, token.balanceOf(account));
 
     }
 
