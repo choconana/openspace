@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-contract BaseERC721 is IERC721 {
+contract BaseERC721 is IERC721, IERC721Errors {
     using Strings for uint256;
     using Address for address;
 
@@ -184,10 +185,10 @@ contract BaseERC721 is IERC721 {
     function transferFrom(address from, address to, uint256 tokenId) public {
         address owner = _owners[tokenId];
         require(_owners[tokenId] != address(0x0), "ERC721: operator query for nonexistent token");
-        require(
-            msg.sender == owner || _tokenApprovals[tokenId] == msg.sender || _operatorApprovals[owner][msg.sender],
-            "ERC721: transfer caller is not owner nor approved"
-        );
+        
+        if (!(msg.sender == owner || _tokenApprovals[tokenId] == msg.sender || _operatorApprovals[owner][msg.sender])) {
+            revert ERC721IncorrectOwner(msg.sender, tokenId, owner);
+        }
 
         _transfer(from, to, tokenId);
     }

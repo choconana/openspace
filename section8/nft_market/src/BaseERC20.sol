@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "lib/openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-contract BaseERC20 is IERC20 {
+contract BaseERC20 is IERC20, IERC20Errors {
     string public name; 
     string public symbol; 
     uint8 public decimals; 
@@ -12,9 +13,7 @@ contract BaseERC20 is IERC20 {
 
     mapping (address => uint256) balances; 
 
-    mapping (address => mapping (address => uint256)) allowances; 
-
-    error BalanceInsufficient();
+    mapping (address => mapping (address => uint256)) allowances;
 
     constructor() {
         // write your code here
@@ -22,7 +21,7 @@ contract BaseERC20 is IERC20 {
         name = "BaseERC20";
         symbol = "BERC20";
         decimals = 18;
-        totalSupply = 100000000000000000000000000;
+        totalSupply = 10e26;
         balances[msg.sender] = totalSupply;  
     }
 
@@ -33,7 +32,10 @@ contract BaseERC20 is IERC20 {
 
     function transfer(address _to, uint256 _value) public virtual returns (bool success) {
         // write your code here
-        require(balances[msg.sender] >= _value, "ERC20: transfer amount exceeds balance");
+        if (balances[msg.sender] < _value) {
+            revert ERC20InsufficientBalance(msg.sender, balances[msg.sender], _value);
+        }
+        
         transferFrom(msg.sender, _to, _value);
 
         emit Transfer(msg.sender, _to, _value);
