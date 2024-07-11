@@ -7,7 +7,7 @@ import "./TokenRecipient.sol";
 contract ExtERC20 is BaseERC20 {
 
     function transferWithCallback(address to, uint256 amount) public returns (bool success){
-        transfer(to, amount);
+        approve(to, amount);
         if (isContract(to)) {
             success = TokenRecipient(to).tokenReceived(msg.sender, amount);
             require(success, "No receive message");
@@ -16,7 +16,7 @@ contract ExtERC20 is BaseERC20 {
     }
 
     function transferWithCallbackWithData(address to, uint256 amount, bytes calldata data) public returns (bool success){
-        transfer(to, amount);
+        approve(to, amount);
         if (isContract(to)) {
             success = TokenRecipient(to).tokenReceivedWithData(msg.sender, amount, data);
             require(success, "No receive message");
