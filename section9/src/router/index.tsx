@@ -8,6 +8,7 @@ import {Navigate, RouteObject} from 'react-router-dom';
 
 const NotFound = SuspenseLazy(() => import(/* webpackChunkName:"not-found" */ '@/view/NotFound'));
 const NftScan = SuspenseLazy(() => import(/* webpackChunkName:"dashboard" */ '@/view/NftScan'));
+const Wallet = SuspenseLazy(() => import(/* webpackChunkName:"dashboard" */ '@/view/Wallet'));
 
 
 const routes: RouteObject[] = [
@@ -18,6 +19,10 @@ const routes: RouteObject[] = [
     {
         path: 'nftScan',
         element: NftScan
+    },
+    {
+        path: 'wallet',
+        element: Wallet
     },
     // 未匹配到页面
     {

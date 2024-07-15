@@ -7,6 +7,7 @@ const Tab = () => {
         <div className='tab-root'>
             <div className='tab-wrap'>
                 <NavLink to='nftScan'>NFTScanner</NavLink>
+                <NavLink to='wallet'>Wallet</NavLink>
             </div>
         </div>
     );
