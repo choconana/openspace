@@ -9,4 +9,6 @@ interface IMarket {
     error AmountIncorrect(address account, uint256 tokenId, uint256 price);
 
     error NFTOwnerIncorrect(address sender, uint256 tokenId, address owner);
+
+    error InvalidSigner(address sender);
 }
