@@ -48,8 +48,6 @@ contract NFTMarketTest is Test, IMarket {
         uint256 price = 100;
         uint256 deadline = 77777;
         (address buyer, bytes memory buyerSign) = genSignature(address(nftMarket), price, deadline);
-        console.log("seller: ", seller);
-        console.log("buyer: ", buyer);
 
         skip(deadline - 1000);
 
@@ -62,10 +60,16 @@ contract NFTMarketTest is Test, IMarket {
         rToken.transfer(buyer, price);
         assertEq(price, rToken.balanceOf(buyer));
 
+        console.log("-------Init-------\n  seller's address is: %s\n  buyer's address is: %s", seller, buyer);
+        console.log("seller's token balance is: %s\n  buyer's token balance is: %s", rToken.balanceOf(seller), rToken.balanceOf(buyer));
+        console.log("tokenId of NFT is: %s and owerOf: %s", tokenId, hNFT.ownerOf(tokenId));
+
         // seller上架nft
         vm.expectEmit(true, true, false, true);
         emit ForSale(seller, tokenId, price);
         forSale(tokenId, seller, price);
+        console.log("");
+        console.log("-------NFT ForSale-------\n  [tokenId:%s] of NFT's price is: ", tokenId, nftMarket.tokens(tokenId));
 
         // 给buyer生成白名单签名
         bytes memory whiteListUserSign = genWhiteListSignature(buyer, price, deadline);
@@ -73,6 +77,10 @@ contract NFTMarketTest is Test, IMarket {
 
         // buyer购买nft
         nftMarket.permitBuy(whiteListUserSign, buyerSign, tokenId, deadline);
+        console.log("");
+        console.log("-------NFT Trade-------");
+        console.log("seller's token balance is: %s\n  buyer's token balance is: %s", rToken.balanceOf(seller), rToken.balanceOf(buyer));
+        console.log("tokenId of NFT is: %s and owerOf: %s", tokenId, hNFT.ownerOf(tokenId));
     }
 
     function mintNFT(address account, uint256 tokenId) public {

@@ -17,8 +17,6 @@ contract TokenBankTest is Test {
         rToken = new RToken("River", "R");
         tokenBank = new TokenBank(address(rToken));
 
-        console.log(rToken.totalSupply());
-
     }
 
     function test_permit(uint256 value, uint256 deadline) public {
