@@ -4,3 +4,6 @@
 [submodule "section8/nft_market/lib/openzeppelin-contracts"]
 	path = section8/nft_market/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section11/nft_market_v2/lib/forge-std"]
+	path = section11/nft_market_v2/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
