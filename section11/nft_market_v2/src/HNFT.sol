@@ -20,4 +20,8 @@ contract HNFT is ERC721, Ownable {
     function addWhiteList(address account) public onlyOwner {
         whiteList[account] = true;
     }
+
+    function setApprovalForAll(address owner, address operator, bool approved) public virtual {
+        _setApprovalForAll(owner, operator, approved);
+    }
 }

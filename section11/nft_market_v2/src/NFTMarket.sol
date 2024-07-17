@@ -21,18 +21,31 @@ contract NFTMarket is IMarket {
         rToken = RToken(token);
     }
 
-    function forSale(uint256 tokenId, uint256 amount) public returns (bool success) {
+    function forSale(bytes memory sellerSign, uint256 tokenId, uint256 amount, uint256 deadline) public returns (bool success) {
         address owner = hNFT.ownerOf(tokenId);
         if (owner != msg.sender) {
             revert NFTOwnerIncorrect(msg.sender, tokenId, owner);
         }
         tokens[tokenId] = amount;
 
+        bytes32 hash = rToken.getERC712Hash(owner, address(this), amount, deadline);
+        address signer = ECDSA.recover(hash, sellerSign);
+        if (signer != owner) {
+            revert InvalidSigner(owner);
+        }
+
+        hNFT.setApprovalForAll(msg.sender, address(this), true);
+
         emit ForSale(owner, tokenId, amount);
         return true;
     }
 
-    function permitBuy(bytes memory whiteListUserSign, bytes memory buyerSign, uint256 tokenId, uint256 deadline) public returns (bool success) {
+    function permitBuy(
+        bytes memory whiteListUserSign, 
+        bytes memory buyerSign, 
+        uint256 tokenId, 
+        uint256 deadline
+    ) public returns (bool success) {
         address buyer = msg.sender;
         address contractOwner = hNFT.owner();
         address nftOwner = hNFT.ownerOf(tokenId);
@@ -51,7 +64,6 @@ contract NFTMarket is IMarket {
 
         success =  rToken.transferFrom(buyer, nftOwner, amount);
 
-        
         buyers[tokenId] = buyer;
         hNFT.safeTransferFrom(nftOwner, buyer, tokenId, abi.encode(amount));
 
