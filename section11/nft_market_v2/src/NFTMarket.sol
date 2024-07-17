@@ -39,6 +39,8 @@ contract NFTMarket is IMarket, IERC721Receiver {
         address nftOwner = hNFT.ownerOf(tokenId);
         uint256 amount = tokens[tokenId];
 
+        require(tokens[tokenId] > 0, "no such nft");
+
         bytes32 hash = rToken.getERC712Hash(contractOwner, buyer, amount, deadline);
         address whiteUser = ECDSA.recover(hash, whiteListUserSign);
         if (contractOwner != whiteUser) {
