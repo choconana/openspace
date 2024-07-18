@@ -1,57 +1,61 @@
 import React, { useState } from 'react';
-import { publicClient } from '../EtherClient';
-import { Block } from 'viem';
+import {observer} from 'mobx-react-lite';
+import {blockChainStore} from '../../store';
+import "./index.less";
 
-interface BlockInfo {
-  baseFeePerGas: BigInt
+
+const TxQuery = () => {
+
+    const { blockChain } = blockChainStore;
+    const { blockInfo, txLog, watchBlock, watchTx, unWatchBlockAction, unWatchTxAction } = blockChain;
+    
+    const [tokenId, setTokenId] = useState('');
+
+    const onWatchTx = () => {
+      watchTx(tokenId);
+    }
+
+    const changeWatchTx = (e) => {
+      setTokenId(e.target.value);
+    }
+
+    return (
+      <div>
+        <div>
+          <span>
+            <button onClick={watchBlock}>监听Block</button>
+            <button onClick={unWatchBlockAction}>关闭区块监听</button>
+          </span>
+        </div>
+        <div>
+          <span>
+              <i className='left-aligned'>区块高度：</i><i>{ blockInfo.blockNumber }</i>
+          </span>
+        </div>
+        <div>
+          <span>
+              <i className='left-aligned'>区块hash：</i><i>{ blockInfo.blockHash }</i>
+          </span>
+        </div>
+        <span className='left-aligned'>-------------------------------</span>
+        <br/>
+        <div>
+          <span>
+            <input placeholder="请输入tokenId" onChange={changeWatchTx}/>
+            <button onClick={onWatchTx}>监听交易</button>
+          </span>
+          <span>
+            <button onClick={unWatchTxAction}>关闭交易监听</button>
+          </span>
+        </div>
+        <div>
+          <span>
+            <h5>交易信息: </h5>
+            <i className='left-aligned'>{txLog}</i>
+          </span>
+        </div>
+      </div>
+    );
 }
 
-const Transaction = () => {
-
-  const [blockNumber, setBlockNumber] = useState('');
-  const [searchBn, setSearchBn] = useState<BigInt>();
-  const [blockInfo, setBlockInfo] = useState<BlockInfo>()
-  async function getBlockNumber() {
-    const bn = await publicClient.getBlockNumber();
-    setBlockNumber(bn.toString());
-  }
-
-  async function getBlock(bn) {
-    const block = await publicClient.getBlock({
-      blockNumber: bn
-    })
-    let info;
-    if (block.baseFeePerGas != null) {
-      info.baseFeePerGas = block.baseFeePerGas
-    }
-    setBlockInfo(info)
-  }
-  
-
-  function searchBlock (param:string) {
-    setSearchBn(BigInt(param))
-  }
-
-  
-  return (
-    <>
-      <div>
-        <button onClick={getBlockNumber}>获取区块数量</button>
-        <span>
-          <i>当前区块数：</i>
-          <i>{blockNumber}</i>
-        </span>
-      </div>
-      <div>
-        <input placeholder='输入区块id' onChange={() => searchBlock}/>
-        <button onClick={() => getBlock(searchBn)}>获取区块</button>
-        <span>
-          <i>当前区块信息：</i>
-          <i>{blockInfo.baseFeePerGas.toString()}</i>
-        </span>
-      </div>
-    </>
-  );
-};
-
-export default Transaction;
+export default observer(TxQuery);
