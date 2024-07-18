@@ -1,10 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { people } from "../../../data";
-import type { Person, ResponseError } from "../../../interfaces";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { people } from '../../../../data';
+import type { Person, ResponseError } from '../../../interfaces';
 
 export default function personHandler(
   req: NextApiRequest,
-  res: NextApiResponse<Person | ResponseError>,
+  res: NextApiResponse<Person | ResponseError>
 ) {
   const { query } = req;
   const { id } = query;

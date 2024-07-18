@@ -31,7 +31,6 @@ const NftScan = () => {
                 </th>
             </tr>
             <tr>
-                <br/>
             </tr>
             <tr>
                 <th>

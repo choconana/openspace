@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from 'mobx';
-import { createPublicClient, http, stringify } from 'viem';
+import { createPublicClient, http, parseAbiItem, stringify } from 'viem';
 import { mainnet } from 'viem/chains';
 
 
@@ -13,10 +13,20 @@ class BlockChain {
     blockNum = '0';
     owner = '';
     tokenURI = '';
+
+    blockInfo = {
+        blockNumber: '',
+        blockHash: ''
+    };
+
+    txLog = '';
+
+    unwatchBlock = () => {};
+    unwatchTx = () => {};
     
     client = createPublicClient({
         chain: mainnet,
-        transport: http(),
+        transport: http("https://eth-mainnet.g.alchemy.com/v2/ToDOPYbbyBKiCdbWdhYBf6FrS3M23oAk"),
     })
 
     abi = [
@@ -44,7 +54,6 @@ class BlockChain {
     }
 
     getOwner = async (param:string) => {
-        debugger
         const data = await this.client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
             abi: this.abi,
@@ -54,8 +63,11 @@ class BlockChain {
         this.owner = data as string;
     }
 
+    getFilter = async () => {
+
+    }
+
     getTokenURI = async (param:string) => {
-        debugger
         const data = await this.client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
             abi: this.abi,
@@ -64,6 +76,47 @@ class BlockChain {
         })
         this.tokenURI = data as string;
     }
+
+    watchBlock = async () => {
+        this.unwatchBlock = this.client.watchBlocks({ 
+                onBlock: block => {
+                    if(block) {
+                        this.blockInfo.blockNumber = block.number.toString();
+                        this.blockInfo.blockHash = block.hash;
+                    }
+                },
+                pollingInterval: 1_000, 
+            }
+        )
+    }
+
+    watchTx = async (param:string) => {
+        const unwatch = this.client.watchEvent({
+            address: param as `0x${string}`,
+            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), 
+            onLogs: logs => {
+                if (logs && logs.length > 0) {
+                    const { blockNumber, blockHash, topics, data } = logs[logs.length - 1];
+                    const amount = parseInt(data) / 10e6;
+                    this.txLog = `在 ${blockNumber} 区块 ${blockHash} 交易中从 ${topics[1]} 转账 ${amount} USDT 到 ${topics[2]}`;
+                }
+            }
+        })
+        this.unwatchTx = unwatch
+        console.log(this.unwatchTx)
+        
+    }
+
+    unWatchBlockAction = () => {
+        this.unwatchBlock.call(this.unwatchBlock);
+        this.blockInfo = { blockHash: '',  blockNumber: ''};
+    }
+
+    unWatchTxAction = () => {
+        this.unwatchTx.call(this.unwatchTx);
+        this.txLog = '';
+    }
+    
 }
 
 const blockChain = new BlockChain();

@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Person } from "../interfaces";
+import Link from 'next/link';
+import { Person } from '../interfaces';
 
 type PersonProps = {
   person: Person;

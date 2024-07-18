@@ -1,0 +1,19 @@
+{
+  "name": "query_ethereum",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.14.11",
+    "tslint": "^6.1.3",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "viem": "^2.17.5"
+  }
+}

@@ -9,12 +9,17 @@ import {Navigate, RouteObject} from 'react-router-dom';
 const NotFound = SuspenseLazy(() => import(/* webpackChunkName:"not-found" */ '@/view/NotFound'));
 const NftScan = SuspenseLazy(() => import(/* webpackChunkName:"dashboard" */ '@/view/NftScan'));
 const Wallet = SuspenseLazy(() => import(/* webpackChunkName:"dashboard" */ '@/view/Wallet'));
+const TxQuery = SuspenseLazy(() => import(/* webpackChunkName:"dashboard" */ '@/view/TxQuery'));
 
 
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <Navigate to='nftScan' /> // 重定向
+        element: <Navigate to='txQuery' /> // 重定向
+    },
+    {
+        path: 'txQuery',
+        element: TxQuery
     },
     {
         path: 'nftScan',

@@ -29,8 +29,10 @@ contract NFTMarketTest is Test, IMarket {
 
     function test_forSale() public {
         uint256 tokenId = 777;
-        address seller = makeAddr("seller");
         uint256 price = 100;
+        uint256 deadline = 8888;
+        (address seller, bytes memory sellerSign) = genSignature("seller1", address(nftMarket), price, deadline);
+
 
         vm.prank(hNFT.owner());
         mintNFT(seller, tokenId);
@@ -38,16 +40,16 @@ contract NFTMarketTest is Test, IMarket {
         vm.expectEmit(true, true, false, true);
         emit ForSale(seller, tokenId, price);
         
-        forSale(tokenId, seller, price);
+        forSale(sellerSign, tokenId, seller, price, deadline);
     }
 
     function test_permitBuy() public {
 
         uint256 tokenId = 777;
-        address seller = makeAddr("seller1");
         uint256 price = 100;
         uint256 deadline = 77777;
-        (address buyer, bytes memory buyerSign) = genSignature(address(nftMarket), price, deadline);
+        (address seller, bytes memory sellerSign) = genSignature("seller1", address(nftMarket), price, deadline);
+        (address buyer, bytes memory buyerSign) = genSignature("buyer1", address(nftMarket), price, deadline);
 
         skip(deadline - 1000);
 
@@ -67,7 +69,7 @@ contract NFTMarketTest is Test, IMarket {
         // seller上架nft
         vm.expectEmit(true, true, false, true);
         emit ForSale(seller, tokenId, price);
-        forSale(tokenId, seller, price);
+        forSale(sellerSign, tokenId, seller, price, deadline);
         console.log("");
         console.log("-------NFT ForSale-------\n  [tokenId:%s] of NFT's price is: ", tokenId, nftMarket.tokens(tokenId));
 
@@ -91,19 +93,15 @@ contract NFTMarketTest is Test, IMarket {
     }
 
     // 上架操作
-    function forSale(uint256 tokenId, address seller,uint price) public {
+    function forSale(bytes memory sellerSign, uint256 tokenId, address seller,uint256 price, uint256 deadline) public {
 
         vm.prank(seller);
-        nftMarket.forSale(tokenId, price);
+        nftMarket.forSale(sellerSign, tokenId, price, deadline);
         assertEq(price, nftMarket.tokens(tokenId));
-
-        vm.prank(seller);
-        hNFT.approve(address(nftMarket), tokenId);
-        assertEq(address(nftMarket), hNFT.getApproved(tokenId));
     }
 
-    function genSignature(address spender, uint256 value, uint256 deadline) public returns (address, bytes memory) {
-        (address signer, uint256 privateKey) = makeAddrAndKey("signer");
+    function genSignature(string memory name, address spender, uint256 value, uint256 deadline) public returns (address, bytes memory) {
+        (address signer, uint256 privateKey) = makeAddrAndKey(name);
         bytes32 hash = rToken.getERC712Hash(signer, spender, value, deadline);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hash);
         bytes memory signature = abi.encodePacked(r, s, v);
