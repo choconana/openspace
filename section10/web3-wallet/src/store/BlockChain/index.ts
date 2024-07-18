@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from 'mobx';
-import { client } from '../etherclient';
+import { client } from '../EtherClient';
 import { parseAbiItem } from 'viem';
 
 
