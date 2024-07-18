@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from 'mobx';
-import { createPublicClient, http, parseAbiItem, stringify } from 'viem';
-import { mainnet } from 'viem/chains';
+import { client } from '../EtherClient';
+import { parseAbiItem } from 'viem';
 
 
 class BlockChain {
@@ -23,11 +23,6 @@ class BlockChain {
 
     unwatchBlock = () => {};
     unwatchTx = () => {};
-    
-    client = createPublicClient({
-        chain: mainnet,
-        transport: http("https://eth-mainnet.g.alchemy.com/v2/ToDOPYbbyBKiCdbWdhYBf6FrS3M23oAk"),
-    })
 
     abi = [
         {
@@ -50,11 +45,11 @@ class BlockChain {
         runInAction(() => {
             this.loading = true;
         });
-        this.blockNum = stringify(await this.client.getBlockNumber()) 
+        this.blockNum = String(await client.getBlockNumber()) 
     }
 
     getOwner = async (param:string) => {
-        const data = await this.client.readContract({
+        const data = await client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
             abi: this.abi,
             functionName: 'ownerOf',
@@ -68,7 +63,7 @@ class BlockChain {
     }
 
     getTokenURI = async (param:string) => {
-        const data = await this.client.readContract({
+        const data = await client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
             abi: this.abi,
             functionName: 'tokenURI',
@@ -78,7 +73,7 @@ class BlockChain {
     }
 
     watchBlock = async () => {
-        this.unwatchBlock = this.client.watchBlocks({ 
+        this.unwatchBlock = client.watchBlocks({ 
                 onBlock: block => {
                     if(block) {
                         this.blockInfo.blockNumber = block.number.toString();
@@ -91,7 +86,7 @@ class BlockChain {
     }
 
     watchTx = async (param:string) => {
-        const unwatch = this.client.watchEvent({
+        const unwatch = client.watchEvent({
             address: param as `0x${string}`,
             event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'), 
             onLogs: logs => {
