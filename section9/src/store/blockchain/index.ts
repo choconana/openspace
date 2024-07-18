@@ -54,6 +54,10 @@ class BlockChain {
         this.owner = data as string;
     }
 
+    getFilter = async () => {
+        
+    }
+
     getTokenURI = async (param:string) => {
         debugger
         const data = await this.client.readContract({

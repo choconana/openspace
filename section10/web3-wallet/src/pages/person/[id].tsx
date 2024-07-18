@@ -1,6 +1,6 @@
-import { useRouter } from "next/router";
-import useSWR from "swr";
-import type { Person, ResponseError } from "../../interfaces";
+import { useRouter } from 'next/router';
+import useSWR from 'swr';
+import type { Person, ResponseError } from '../../interfaces';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
