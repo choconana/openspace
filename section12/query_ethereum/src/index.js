@@ -73,6 +73,7 @@ function main() {
                             console.log('日志解析错误：', log);
                         }
                     }
+                    console.log("number: ", logs.length);
                     return [2 /*return*/];
             }
         });

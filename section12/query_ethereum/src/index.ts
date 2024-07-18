@@ -23,8 +23,9 @@ async function main() {
     } else {
         console.log('日志解析错误：', log);
     }
-}
 
+  }
+  console.log("number: ", logs.length);
 }
 
 main();

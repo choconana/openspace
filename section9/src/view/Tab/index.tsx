@@ -6,8 +6,15 @@ const Tab = () => {
     return (
         <div className='tab-root'>
             <div className='tab-wrap'>
-                <NavLink to='nftScan'>NFTScanner</NavLink>
-                <NavLink to='wallet'>Wallet</NavLink>
+                <NavLink 
+                    className={({ isActive } : { isActive : boolean }) => (isActive ? 'selected' : '')}  
+                    to='txQuery'>TransactionQuery</NavLink>
+                <NavLink 
+                    className={({ isActive } : { isActive : boolean }) => (isActive ? 'selected' : '')}  
+                    to='nftScan'>NFTScanner</NavLink>
+                <NavLink 
+                    className={({ isActive } : { isActive : boolean }) => (isActive ? 'selected' : '')}  
+                    to='wallet'>Wallet</NavLink>
             </div>
         </div>
     );
