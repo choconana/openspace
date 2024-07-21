@@ -8,6 +8,7 @@
     "create-local": "graph create --node http://localhost:8020/ nft_market",
     "remove-local": "graph remove --node http://localhost:8020/ nft_market",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 nft_market",
+    "deploy-alchemy": "graph deploy --studio nft_market --version-label v0.0.1 --node https://subgraphs.alchemy.com/api/subgraphs/deploy --deploy-key ubd8sn7JOxSmx --ipfs https://ipfs.satsuma.xyz",
     "test": "graph test"
   },
   "dependencies": {
