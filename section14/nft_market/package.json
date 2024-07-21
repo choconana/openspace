@@ -1,0 +1,19 @@
+{
+  "name": "nft_market",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ nft_market",
+    "create-local": "graph create --node http://localhost:8020/ nft_market",
+    "remove-local": "graph remove --node http://localhost:8020/ nft_market",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 nft_market",
+    "deploy-alchemy": "graph deploy --studio nft_market --version-label v0.0.1 --node https://subgraphs.alchemy.com/api/subgraphs/deploy --deploy-key ubd8sn7JOxSmx --ipfs https://ipfs.satsuma.xyz",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.78.0",
+    "@graphprotocol/graph-ts": "0.32.0"
+  },
+  "devDependencies": { "matchstick-as": "0.5.0" }
+}

@@ -1,0 +1,19 @@
+type Buy @entity(immutable: true) {
+  id: Bytes!
+  buyer: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ForSale @entity(immutable: true) {
+  id: Bytes!
+  seller: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
