@@ -101,7 +101,6 @@ contract NFTMarketOfflineTest is NFTMarketTest {
         (bool success,) = payable(buyer).call{value: buyerBalance}("");
         assertTrue(success);
         assertEq(buyerBalance, buyer.balance);
-        // assertTrue(nftmarketBalance > address(nftMarket).balance);
         
         // 给seller分发nft
         vm.prank(hNFT.owner());
