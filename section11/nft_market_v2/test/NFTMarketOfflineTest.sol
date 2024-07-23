@@ -96,6 +96,7 @@ contract NFTMarketOfflineTest is NFTMarketTest {
         (address buyer, ) = genSignature("buyer1", address(nftMarket), order.price, order.deadline);
         (address seller, , bytes memory orderSign) = genOrderSignature("seller1", order);
 
+        // 给buyer添加eth余额
         vm.fee(250 ether);
         uint256 buyerBalance = 200 ether;
         (bool success,) = payable(buyer).call{value: buyerBalance}("");
