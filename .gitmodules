@@ -16,3 +16,6 @@
 [submodule "section16/stake/lib/forge-std"]
 	path = section16/stake/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "section16/stake/lib/openzeppelin-contracts"]
+	path = section16/stake/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
