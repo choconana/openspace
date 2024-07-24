@@ -28,3 +28,6 @@
 [submodule "section16/defi/lib/openzeppelin-contracts"]
 	path = section16/defi/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section17/storage/lib/forge-std"]
+	path = section17/storage/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
