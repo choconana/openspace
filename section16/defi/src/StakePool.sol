@@ -38,40 +38,48 @@ contract StakePool {
 
         rnt.permit(staker, address(this), amount, deadline, sign);
 
-        StakeInfo memory stakeInfo = stakes[staker];
+        StakeInfo storage stakeInfo = stakes[staker];
         uint256 timeDiff = 0;
         if (stakeInfo.lastUpdateTime > 0) {
             timeDiff = now - stakeInfo.lastUpdateTime;
         }
-        stakeInfo.unclaimed += stakeInfo.staked * timeDiff / SECOND_PER_DAY;
+
+        unclaim(stakeInfo, timeDiff);
         stakeInfo.staked += amount;
         stakeInfo.lastUpdateTime = now;
 
-        stakes[staker] = stakeInfo;
+
+        rnt.transferFrom(staker, address(this), amount);
     }
 
     function unstake(uint amount) public {
         require(amount > 0, "amount must greater than zero");
 
         address staker = msg.sender;
-        StakeInfo memory stakeInfo = stakes[staker];
+        StakeInfo storage stakeInfo = stakes[staker];
         require(stakeInfo.lastUpdateTime > 0, "nothing to unstake");
         require(stakeInfo.staked > amount, "unstake too many");
 
         uint256 now = block.timestamp;
         uint256 timeDiff = now - stakeInfo.lastUpdateTime;
-        stakeInfo.unclaimed += stakeInfo.staked * timeDiff / SECOND_PER_DAY;
+
+        unclaim(stakeInfo, timeDiff);
         stakeInfo.staked -= amount;
         stakeInfo.lastUpdateTime = now;
 
-        stakes[staker] = stakeInfo;
+        rnt.transfer(staker, amount);
     }
 
-    function claim() public {
+    function claim() public returns (uint256) {
         address staker = msg.sender;
         uint256 claimAmount = stakes[staker].unclaimed;
         require(claimAmount > 0, "nothing to claim");
-        esrnt.mint(staker, claimAmount);
+        stakes[staker].unclaimed = 0;
+        return esrnt.mint(staker, claimAmount);
+    }
+
+    function unclaim(StakeInfo storage stakeInfo, uint256 timeDiff) private {
+        stakeInfo.unclaimed += stakeInfo.staked * timeDiff / SECOND_PER_DAY;
     }
 
     function stakeOf() public view returns (StakeInfo memory) {

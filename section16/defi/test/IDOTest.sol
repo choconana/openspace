@@ -85,10 +85,10 @@ contract IDOTest is Test {
 
     function presale_complete(address partner, uint256 amount) public {
         vm.fee(300 ether);
-        (bool success, ) = payable(address(rntIDO)).call{value: rntIDO.MAX_TOTAL_ETH() - amount}("");
-        assertTrue(success);
+        // 此处预售大量金额方便测试，要先注释掉buyCheck
+        rntIDO.presale{value: rntIDO.MAX_TOTAL_ETH() - amount}();
 
-        (success, ) = payable(partner).call{value: amount}("");
+        (bool success, ) = payable(partner).call{value: amount}("");
         assertTrue(success);
 
         vm.startPrank(partner);

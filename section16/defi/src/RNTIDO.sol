@@ -26,6 +26,8 @@ contract RNTIDO is Ownable {
 
     bool public isEnd;
 
+    uint256 public totalEth;
+
     constructor(address _rnt) Ownable(msg.sender) {
         rnt = RNT(_rnt);
     }
@@ -34,17 +36,17 @@ contract RNTIDO is Ownable {
     fallback() external payable { }
 
     modifier buyCheck() {
-        require(msg.value >= MIN_BUY && msg.value <= MAX_BUY);
+        require(msg.value >= MIN_BUY && msg.value <= MAX_BUY, "buy amount invalid");
         _;
     }
 
     modifier isSuccess() {
-        require(isEnd && address(this).balance >= THRESHOLD);
+        require(isEnd && address(this).balance >= THRESHOLD, "presale success");
         _;
     }
 
     modifier isFailed() {
-        require(isEnd && address(this).balance < THRESHOLD);
+        require(isEnd && address(this).balance < THRESHOLD, "presale failed");
         _;
     }
 
@@ -55,13 +57,14 @@ contract RNTIDO is Ownable {
 
     function presale() public payable buyCheck isActive {
         balances[msg.sender] += msg.value;
+        totalEth += msg.value;
         if (address(this).balance >= MAX_TOTAL_ETH) { isEnd = true; }
     }
 
     function claim() public isSuccess {
         address sender = msg.sender;
         require(balances[sender] > 0, "nothing to claim");
-        uint256 rntAmt = PRESALE_AMOUNT *  balances[sender] / address(this).balance;
+        uint256 rntAmt = PRESALE_AMOUNT *  balances[sender] / totalEth;
         delete balances[sender];
         rnt.transferFrom(address(rnt), sender, rntAmt);
     }
@@ -75,12 +78,13 @@ contract RNTIDO is Ownable {
 
     function refund() public isFailed {
         address sender = msg.sender;
-        require(balances[sender] > 0, "nothing to refund");
-        (bool success, ) = payable(sender).call{value: balances[sender]}("");
+        uint256 balance = balances[sender];
+        require(balance > 0, "nothing to refund");
+        delete balances[sender];
+        (bool success, ) = payable(sender).call{value: balance}("");
         if (!success) {
             revert();
         }
-        delete balances[sender];
     }
 
     // 剩余可预售的ether数量

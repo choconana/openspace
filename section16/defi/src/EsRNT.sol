@@ -22,10 +22,10 @@ contract EsRNT is ERC20 {
         uint256 lockTime;
     }
 
-    function mint(address to, uint256 amount) public {
+    function mint(address to, uint256 amount) public returns (uint256) {
         require(to != address(0), "invalid address");
         require(amount > 0, "amount must greater than zero");
-        rnt.transferFrom(address(rnt), address(this), amount);
+        rnt.transferFrom(msg.sender, address(this), amount);
         _mint(to, amount);
         LockInfo memory lockInfo = LockInfo({
             staker: to,
@@ -33,34 +33,25 @@ contract EsRNT is ERC20 {
             lockTime: block.timestamp
         });
         locks.push(lockInfo);
+        return locks.length - 1;
     }
 
-    function burn(uint256 amount) public {
-        require(amount > 0, "amount must greater than zero");
+    function burn(uint256 idx) public {
+        require(idx >=0, "idx must greater or equal than zero");
         uint256 now = block.timestamp;
         address staker = msg.sender;
-        uint256 len = locks.length;
-        uint256 profits = 0;
-        uint256 burned = 0;
-        LockInfo[] memory newLocks = new LockInfo[](len);
-        uint256 counter = 0;
-        for (uint256 i = 0; i < len; i++) {
-            LockInfo memory lockInfo = locks[i];
-            if (lockInfo.staker == staker) {
-                uint256 profit = lockInfo.amount * (now - lockInfo.lockTime) / EFFECTIVE_EXCHANGE_TIME;
-                profits += profit;
-                burned += lockInfo.amount - profit;
-            } else {
-                newLocks[counter] = lockInfo;
-                counter++;
-            }
-        }
-        rnt.transferFrom(address(rnt), staker, profits);
+
+        LockInfo storage lockInfo = locks[idx];
+
+        require(staker == lockInfo.staker, "no permission to burn");
+
+        uint256 profit = lockInfo.amount * (now - lockInfo.lockTime) / EFFECTIVE_EXCHANGE_TIME;
+        uint256 burned = lockInfo.amount - profit;
+
+        delete locks[idx];
+
+        rnt.transferFrom(address(rnt), staker, profit);
         rnt.burn(address(rnt), burned);
-        // 防止原数组过大，删除元素后重新调整长度
-        delete locks;
-        for (uint256 i = 0; i < counter; i++) {
-            locks.push(newLocks[i]);
-        }
+
     }
 }

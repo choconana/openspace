@@ -132,13 +132,13 @@ contract StakePoolTest is Test, EIP712("River", "1"), Nonces {
         uint256 expectUnclaimed = oldStaked * time2 / stakePool.SECOND_PER_DAY();
         assertEq(expectUnclaimed, stakeInfo.unclaimed);
 
-        stakePool.claim();
+        uint256 idx = stakePool.claim();
         assertEq(expectUnclaimed, esRNT.balanceOf(staker));
 
         skip(esRNT.EFFECTIVE_EXCHANGE_TIME());
 
-        esRNT.burn(expectUnclaimed);
-        assertEq(expectUnclaimed, rnt.balanceOf(staker));
+        esRNT.burn(idx);
+        assertEq(expectUnclaimed, rnt.balanceOf(staker) - unstaked);
 
         vm.stopPrank();
     }
@@ -146,6 +146,8 @@ contract StakePoolTest is Test, EIP712("River", "1"), Nonces {
     function stake(uint256 amount, uint256 deadline) public returns (address) {
         (address staker, uint256 pk) = makeAddrAndKey("staker1");
         
+        vm.prank(address(rnt));
+        rnt.transfer(staker, amount);
 
         RNT.Message memory message = RNT.Message({
             owner: staker,
