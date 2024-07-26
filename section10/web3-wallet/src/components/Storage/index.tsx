@@ -4,13 +4,17 @@ import {blockChainStore} from '../../store';
 
 const StorageAt = () => {
     const { blockChain } = blockChainStore;
-    const { lockInfos, getStorage } = blockChain;
+    const { lockInfos, getStorage, clearStorageInfo } = blockChain;
 
     return (
         <>
             <div>
                 <span>
                     <button onClick={getStorage}>storageAt</button>
+                </span>
+                <span>    </span>
+                <span>
+                    <button onClick={clearStorageInfo}>clear</button>
                 </span>
             </div>
             <div>

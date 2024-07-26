@@ -153,6 +153,10 @@ class BlockChain {
             this.lockInfos.push(lockInfo);
         }
     }
+
+    clearStorageInfo = () => {
+        this.lockInfos = [];
+    }
 }
 
 const blockChain = new BlockChain();
