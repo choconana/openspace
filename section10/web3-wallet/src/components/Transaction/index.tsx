@@ -7,7 +7,7 @@ import "./index.less";
 const TxQuery = () => {
 
     const { blockChain } = blockChainStore;
-    const { blockInfo, txLog, watchBlock, watchTx, unWatchBlockAction, unWatchTxAction } = blockChain;
+    const { blockInfo, txLog, watchBlock, watchTx, unWatchBlockAction, unWatchTxAction, getStorage } = blockChain;
     
     const [tokenId, setTokenId] = useState('');
 

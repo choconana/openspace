@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from 'mobx';
-import { client } from '../EtherClient';
-import { parseAbiItem } from 'viem';
+import { client, sepoliaClient } from '../EtherClient';
+import { encodePacked, hexToBigInt, keccak256, parseAbiItem, toHex } from 'viem';
 
 
 class BlockChain {
@@ -8,6 +8,8 @@ class BlockChain {
         // makeAutoObservable: 自动将所有属性和方法转换为可观察对象。
         makeAutoObservable(this);
     }
+
+
     loading = true;
 
     blockNum = '0';
@@ -19,12 +21,17 @@ class BlockChain {
         blockHash: ''
     };
 
+    readonly USER: bigint = BigInt(0xffffffffffffffffffffffffffffffff0000000000000000);
+    readonly TIME: BigInt = BigInt(0x0000000000000000000000000000000000000000ffffffff);
+    
+    lockInfos = []
+
     txLog = '';
 
     unwatchBlock = () => {};
     unwatchTx = () => {};
 
-    abi = [
+    abiText = [
         {
             inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
             name: "ownerOf",
@@ -51,21 +58,27 @@ class BlockChain {
     getOwner = async (param:string) => {
         const data = await client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
-            abi: this.abi,
+            abi: this.abiText,
             functionName: 'ownerOf',
             args: [param]
         })
         this.owner = data as string;
     }
 
-    getFilter = async () => {
-
+    storageAt = async (param:any) => {
+        const bytecode = await sepoliaClient.getStorageAt({
+            address: param.address,
+            slot: param.slot,
+            blockTag: 'latest', 
+        })
+        const data = hexToBigInt(`0x${String(bytecode).substring(2)}`);
+        return data;
     }
 
     getTokenURI = async (param:string) => {
         const data = await client.readContract({
             address: '0x0483b0dfc6c78062b9e999a82ffb795925381415',
-            abi: this.abi,
+            abi: this.abiText,
             functionName: 'tokenURI',
             args: [param]
         })
@@ -112,6 +125,38 @@ class BlockChain {
         this.txLog = '';
     }
     
+    getStorage = async () => {
+        let paramLen = {
+            address: "0x254Ff72FBc2d17c9d21a46d2b6be07CC24b260c8",
+            slot: toHex(0)
+        }
+        const len = Number(await this.storageAt(paramLen));
+
+        const q = keccak256(encodePacked(['uint256'], [BigInt(0)]));
+        for (let i = 0; i < len; i++) {
+            let param1 = {
+                address: "0x254Ff72FBc2d17c9d21a46d2b6be07CC24b260c8",
+                slot: toHex(hexToBigInt(q) + BigInt(i * 2))
+            }
+            const res1 = await this.storageAt(param1);
+            
+            let param2 = {
+                address: "0x254Ff72FBc2d17c9d21a46d2b6be07CC24b260c8",
+                slot: toHex(hexToBigInt(q) + BigInt(i * 2 + 1))
+            }
+            const res2 = await this.storageAt(param2);
+            let lockInfo = {
+                user: toHex(res1).substring(0, 42),
+                startTime: (res1 & this.TIME.valueOf()).toString(),
+                amount: res2.toString()
+            }
+            this.lockInfos.push(lockInfo);
+        }
+    }
+
+    clearStorageInfo = () => {
+        this.lockInfos = [];
+    }
 }
 
 const blockChain = new BlockChain();
