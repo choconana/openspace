@@ -31,3 +31,6 @@
 [submodule "section17/storage/lib/forge-std"]
 	path = section17/storage/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "section18/upgreadable/lib/forge-std"]
+	path = section18/upgreadable/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
