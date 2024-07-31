@@ -43,3 +43,6 @@
 [submodule "section18/upgreadable/lib/openzeppelin-contracts-upgradeable"]
 	path = section18/upgreadable/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "section20/loan/lib/openzeppelin-contracts"]
+	path = section20/loan/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
