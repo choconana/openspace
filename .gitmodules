@@ -34,3 +34,12 @@
 [submodule "section18/upgreadable/lib/forge-std"]
 	path = section18/upgreadable/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "section18/upgreadable/lib/openzeppelin-contracts"]
+	path = section18/upgreadable/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section18/upgreadable/lib/openzeppelin-foundry-upgrades"]
+	path = section18/upgreadable/lib/openzeppelin-foundry-upgrades
+	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades
+[submodule "section18/upgreadable/lib/openzeppelin-contracts-upgradeable"]
+	path = section18/upgreadable/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
