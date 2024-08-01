@@ -89,6 +89,7 @@ contract NFTMarketTest is Test, IMarket {
         uint256 interest_t = market.FEE_PERCENT() + fee * market.FEE_PERCENT() / amountTotal;
         assertEq(interest_t, market.interest_t());
 
+        // 第二次NFT交易
         buyAmt = 20000;
         fee = buyAmt * market.FEE_RATE() / market.FEE_PERCENT();
         buy(buyAmt, 888, false);
