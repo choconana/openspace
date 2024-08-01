@@ -18,13 +18,13 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
     // 费率0.3%
     uint public constant FEE_RATE = 30;
 
-    uint256 public totalStake;
+    uint256 public interest_t = FEE_PERCENT;
+
+    uint256 totalEth;
 
     mapping(bytes32 => bool) public cancelOrders;
 
-    mapping(address => uint256) private stakes;
-
-    address[] private stakers;
+    mapping(address => StakeInfo) public stakeInfos;
 
     HNFT hNFT;
 
@@ -36,10 +36,18 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         uint256 deadline;
     }
 
+    struct StakeInfo {
+        uint256 principal;
+        uint256 interest_i;
+    }
+
 
     constructor(address nft) {
         hNFT = HNFT(nft);
     }
+
+    event Log(uint256 p1, uint256 p2, uint256 p3);
+    event Log1(address a1);
 
     receive() external payable { }
     fallback() external payable { }
@@ -116,12 +124,9 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
     }
 
     function calInterest(uint256 fee) internal {
-        uint len = stakers.length;
-        for(uint i = 0; i < len; i++) {
-            uint256 stakeAmt = stakes[stakers[i]];
-            stakes[stakers[i]] += fee * stakeAmt / totalStake;
-        }
-        totalStake += fee;
+        require(address(this).balance > 0, "balance must greater than 0");
+        interest_t = interest_t * (FEE_PERCENT + fee * FEE_PERCENT / totalEth) / FEE_PERCENT;
+        emit Log(interest_t, fee, address(this).balance);
     }
 
     function stake() payable public {
@@ -129,10 +134,10 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         require(amount > 0, "amount must greater than zero");
         address staker = msg.sender;
 
-        totalStake += amount;
-        stakes[staker] += amount;
-        stakers.push(staker);
+        StakeInfo storage stakeInfo = stakeChange(staker);
+        stakeInfo.principal += amount;
 
+        totalEth += amount;
         emit Stake(staker, amount);
     }
 
@@ -140,18 +145,29 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         require(amount > 0, "amount must greater than zero");
 
         address staker = msg.sender;
-        require(amount <= stakes[staker], "amount too large to unstake");
+        StakeInfo storage stakeInfo = stakeChange(staker);
 
-        totalStake -= amount;
-        stakes[staker] -= amount;
+        require(amount <= stakeInfo.principal, "amount too large to unstake");
 
+        stakeInfo.principal -= amount;
         (bool success, ) = payable(staker).call{value: amount}("");
         require(success, "transfer failed");
 
         emit Unstake(staker, amount);
     }
 
-    function stakeOf(address staker) public view returns (uint256) {
-        return stakes[staker];
+    function stakeOf() public view returns (uint256) {
+        return stakeInfos[msg.sender].principal;
+    }
+
+    function stakeChange(address staker) internal returns (StakeInfo storage stakeInfo) {
+        stakeInfo = stakeInfos[staker];
+        if (stakeInfo.interest_i == 0) {
+            stakeInfo.interest_i = FEE_PERCENT;
+        }
+        // emit Log(stakeInfo.principal, stakeInfo.interest_i, interest_t);
+
+        stakeInfo.principal = stakeInfo.principal * interest_t / stakeInfo.interest_i;
+        stakeInfo.interest_i = interest_t;
     }
 }

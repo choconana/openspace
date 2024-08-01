@@ -45,7 +45,7 @@ contract NFTMarketTest is Test, IMarket {
     }
 
     function test_buy() public {
-        buy(15000 wei);
+        buy(15000 wei, 777, true);
     }
 
     function test_stake() public {
@@ -63,8 +63,10 @@ contract NFTMarketTest is Test, IMarket {
         // staker1,2,3分别进行ether质押
         uint256 amount1 = 100;
         address staker1 = makeStaker("staker1");
-        vm.prank(staker1);
+        vm.startPrank(staker1);
         market.stake{value: amount1}();
+        assertEq(amount1, market.stakeOf());
+        vm.stopPrank();
 
         uint256 amount2 = 200;
         address staker2 = makeStaker("staker2");
@@ -77,34 +79,44 @@ contract NFTMarketTest is Test, IMarket {
         market.stake{value: amount3}();
 
         uint256 amountTotal = amount1 + amount2 + amount3;
+        console.log("balance:", address(market).balance);
     
         // 质押完后执行购买操作
         uint256 buyAmt = 15000;
         uint256 fee = buyAmt * market.FEE_RATE() / market.FEE_PERCENT();
-        buy(buyAmt);
+        buy(buyAmt, 777, true);
         
-        uint256 interest1 = fee * amount1 / amountTotal;
-        uint256 interest2 = fee * amount2 / amountTotal;
-        uint256 interest3 = fee * amount3 / amountTotal;
-        assertEq(amount1 + interest1, market.stakeOf(staker1));
-        assertEq(amount2 + interest2, market.stakeOf(staker2));
-        assertEq(amount3 + interest3, market.stakeOf(staker3));
+        uint256 interest_t = market.FEE_PERCENT() + fee * market.FEE_PERCENT() / amountTotal;
+        assertEq(interest_t, market.interest_t());
+
+        buyAmt = 20000;
+        fee = buyAmt * market.FEE_RATE() / market.FEE_PERCENT();
+        buy(buyAmt, 888, false);
+        
+        interest_t = interest_t * (market.FEE_PERCENT() + fee * market.FEE_PERCENT() / amountTotal) / market.FEE_PERCENT();
+        assertEq(interest_t, market.interest_t());
+
+        // 给market充点钱，防止不够付利息
+        payable(market).call{value: 1 ether}("");
 
         // 取款
         uint256 balance1 = staker1.balance;
-        vm.prank(staker1);
-        market.unstake(amount1 + interest1);
-        assertEq(balance1 + amount1 + interest1, staker1.balance);
+        vm.startPrank(staker1);
+        market.unstake(amount1 * interest_t / market.FEE_PERCENT());
+        assertEq(balance1 + amount1 * interest_t / market.FEE_PERCENT(), staker1.balance);
+        vm.stopPrank();
 
         uint256 balance2 = staker2.balance;
-        vm.prank(staker2);
-        market.unstake(amount2 + interest2);
-        assertEq(balance2 + amount2 + interest2, staker2.balance);
+        vm.startPrank(staker2);
+        market.unstake(amount2 * interest_t / market.FEE_PERCENT());
+        assertEq(balance2 + amount2 * interest_t / market.FEE_PERCENT(), staker2.balance);
+        vm.stopPrank();
 
         uint256 balance3 = staker3.balance;
-        vm.prank(staker3);
-        market.unstake(amount3 + interest3);
-        assertEq(balance3 + amount3 + interest3, staker3.balance);
+        vm.startPrank(staker3);
+        market.unstake(amount3 * interest_t / market.FEE_PERCENT());
+        assertEq(balance3 + amount3 * interest_t / market.FEE_PERCENT(), staker3.balance);
+        vm.stopPrank();
 
     }
 
@@ -155,8 +167,8 @@ contract NFTMarketTest is Test, IMarket {
         });
     }
 
-    function buy(uint256 price) public {
-        NFTMarket.NFTOrder memory order = createOrder(address(0), 777, price, 8888);
+    function buy(uint256 price, uint256 tokenId, bool isCheck) public {
+        NFTMarket.NFTOrder memory order = createOrder(address(0), tokenId, price, 8888);
         address buyer = makeAddr("buyerX");
         (address seller, , bytes memory orderSign) = genOrderSignature("sellerX", order);
 
@@ -165,7 +177,9 @@ contract NFTMarketTest is Test, IMarket {
         uint256 buyerBalance = 200 ether;
         (bool success,) = payable(buyer).call{value: buyerBalance}("");
         assertTrue(success);
-        assertEq(buyerBalance, buyer.balance);
+        if (isCheck) {
+            assertEq(buyerBalance, buyer.balance);
+        }
         
         // 给seller分发nft
         vm.prank(nft.owner());
@@ -188,7 +202,10 @@ contract NFTMarketTest is Test, IMarket {
         vm.prank(buyer);
         market.buy{value: order.price}(orderSign, order);
         // uint cost = order.price - fee;
-        assertEq(buyerBalance - order.price, buyer.balance);
-        assertEq(order.price - fee, seller.balance);
+        if (isCheck) {
+            assertEq(buyerBalance - order.price, buyer.balance);
+            assertEq(order.price - fee, seller.balance);
+        }
+        
     }
 }
