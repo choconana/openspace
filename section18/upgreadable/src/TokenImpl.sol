@@ -8,19 +8,35 @@ contract TokenImpl is ERC20 {
 
     uint256 private _totalSupply;
 
-    address private _owner;
+    address public _owner;
+
+    mapping(address => bool) public admins;
     constructor(string memory name, string memory symbol, address owner) 
         ERC20(name, symbol) 
     {
         _owner = owner;
+        admins[owner] = true;
     }
 
+    error Owner(address o1, address o2);
+
     modifier onlyOwner(address owner) {
-        require(_owner == owner, "no permissions");
+        if (_owner != owner) {
+            revert Owner(_owner, owner);
+        }
         _;
     }
 
-    function setTotalSupply(uint256 totalSupply_, address owner) public onlyOwner(owner) {
+    modifier onlyAdmin(address admin) {
+        require(admins[admin], "no permissions");
+        _;
+    }
+
+    function addAdmin(address admin, address owner) public onlyOwner(owner) {
+        admins[admin] = true;
+    }
+
+    function setTotalSupply(uint256 totalSupply_, address admin) public onlyAdmin(admin) {
         _totalSupply = totalSupply_;
     }
 
@@ -28,7 +44,8 @@ contract TokenImpl is ERC20 {
         return _totalSupply;
     }
 
-    function mint(address account, uint256 value, address owner) public onlyOwner(owner) {
+    function mint(address account, uint256 value, address admin) public onlyAdmin(admin) {
         _mint(account, value);
     }
+
 }

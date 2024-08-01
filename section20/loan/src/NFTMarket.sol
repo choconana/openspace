@@ -6,9 +6,6 @@ import "./IMarket.sol";
 import "./IStakingPool.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 // 仅用eth购买
 contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
@@ -17,6 +14,7 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         "LimitOrder(address maker,address nft,uint256 tokenId,address payToken,uint256 price,uint256 deadline)"
     );
 
+    uint public constant FEE_PERCENT = 10000;
     // 费率0.3%
     uint public constant FEE_RATE = 30;
 
@@ -79,15 +77,15 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         
         IERC721(order.nft).safeTransferFrom(order.seller, buyer, order.tokenId, "");
 
-        uint fee = order.price * FEE_RATE / 10000;
-
+        uint fee = order.price * FEE_RATE / FEE_PERCENT;
+        uint income = order.price - fee;
         // 计算质押利息
         calInterest(fee);
 
-        (bool success,) = order.seller.call{value: order.price - fee}("");
+        (bool success,) = order.seller.call{value: income}("");
         require(success, "MKT: transfer failed");
 
-        emit Buy(buyer, order.tokenId, order.price);
+        emit Buy(buyer, order.tokenId, income);
     }
 
     function cancelOrder(bytes memory sellerSign, NFTOrder memory order) public {
@@ -138,7 +136,7 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         emit Stake(staker, amount);
     }
 
-    function unstake(uint64 amount) public {
+    function unstake(uint256 amount) public {
         require(amount > 0, "amount must greater than zero");
 
         address staker = msg.sender;
@@ -147,6 +145,13 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
         totalStake -= amount;
         stakes[staker] -= amount;
 
+        (bool success, ) = payable(staker).call{value: amount}("");
+        require(success, "transfer failed");
+
         emit Unstake(staker, amount);
+    }
+
+    function stakeOf(address staker) public view returns (uint256) {
+        return stakes[staker];
     }
 }

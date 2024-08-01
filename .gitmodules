@@ -46,3 +46,6 @@
 [submodule "section20/loan/lib/openzeppelin-contracts"]
 	path = section20/loan/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section20/loan_proto/lib/forge-std"]
+	path = section20/loan_proto/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

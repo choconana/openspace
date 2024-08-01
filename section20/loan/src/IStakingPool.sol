@@ -9,5 +9,5 @@ interface IStakingPool {
 
     function stake() external payable;
 
-    function unstake(uint64 amount) external;
+    function unstake(uint256 amount) external;
 }
