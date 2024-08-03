@@ -49,3 +49,6 @@
 [submodule "section20/loan_proto/lib/forge-std"]
 	path = section20/loan_proto/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "section19/dex/lib/forge-std"]
+	path = section19/dex/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

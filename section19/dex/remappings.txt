@@ -1,0 +1,3 @@
+@uniswap/v2-core/contracts/=src/uniswapV2/core/
+@uniswap/lib/contracts/libraries/=src/uniswapV2/libraries/
+forge-std/=lib/forge-std/src/
