@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import {Test, console} from "../lib/forge-std/src/Test.sol";
-import "../src/TokenFactoryV1.sol";
-import "../src/TokenFactoryV2.sol";
-import "../src/TokenTransparentProxy.sol";
+import "../src/token/TokenFactoryV1.sol";
+import "../src/token/TokenFactoryV2.sol";
+import "../src/token/TokenTransparentProxy.sol";
 import "../lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol";
 
 
@@ -46,6 +46,7 @@ contract TransparentProxyTest is Test {
 
         assertEq(perMint, IERC20(token1).balanceOf(address(this)));
 
+        
         // upgrade
         // 使用proxyAdmin进行升级
         vm.prank(proxy.proxyAdmin());

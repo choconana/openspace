@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import {Test, console} from "../lib/forge-std/src/Test.sol";
-import "../src/TokenFactoryV1.sol";
-import "../src/TokenFactoryV2.sol";
-import "../src/TokenImpl.sol";
+import "../src/token/TokenFactoryV1.sol";
+import "../src/token/TokenFactoryV2.sol";
+import "../src/token/TokenImpl.sol";
 import "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract TokenFactoryTest is Test {
