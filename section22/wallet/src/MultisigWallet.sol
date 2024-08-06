@@ -59,8 +59,8 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
     }
 
     function executeTransaction(uint64 idx, bytes[] memory signs) public {
-        require(holders[idx] == msg.sender, "no permission");
-        
+        require(holders[idx] == msg.sender, "no permission to execute");
+
         uint len = signs.length;
         if (len < 2) {
             revert SignerNotEnough(len);
@@ -78,8 +78,11 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
             revert PermissionNotEnough();
         }
 
+        delete txs[idx];
+        delete holders[idx];
+
         (bool success, ) = tran.to.call{value: tran.value}(tran.data);
-        
+
         require(success, "tx failed");
 
         emit ExecuteTransaction(tran.to, tran.value, tran.data);
