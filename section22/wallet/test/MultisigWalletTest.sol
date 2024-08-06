@@ -41,6 +41,7 @@ contract MultisigWalletTest is Test {
         uint256 amount = 100;
         address to = makeAddr("to");
 
+        vm.prank(owner1);
         uint64 idx = wallet.proposeTranscation(to, amount, "");
 
         MultisigWallet.Transaction memory tran = wallet.getTransaction(idx);
@@ -52,6 +53,7 @@ contract MultisigWalletTest is Test {
         signs[0] = sign1;
         signs[1] = sign2;
 
+        vm.prank(owner1);
         wallet.executeTransaction(idx, signs);
 
         assertEq(amount, to.balance);
@@ -64,6 +66,7 @@ contract MultisigWalletTest is Test {
         uint256 amount = 100;
         address to = makeAddr("to");
 
+        vm.prank(owner1);
         uint64 idx = wallet.proposeTranscation(to, amount, "");
 
         MultisigWallet.Transaction memory tran = wallet.getTransaction(idx);
@@ -75,6 +78,7 @@ contract MultisigWalletTest is Test {
 
         vm.expectRevert();
         // revert SignerNotEnough(1);
+        vm.prank(owner1);
         wallet.executeTransaction(idx, signs);
 
     }
@@ -86,6 +90,7 @@ contract MultisigWalletTest is Test {
         uint256 amount = 100;
         address to = makeAddr("to");
 
+        vm.prank(owner1);
         uint64 idx = wallet.proposeTranscation(to, amount, "");
 
         MultisigWallet.Transaction memory tran = wallet.getTransaction(idx);
@@ -102,6 +107,7 @@ contract MultisigWalletTest is Test {
 
         vm.expectRevert();
         // revert PermissionNotEnough();
+        vm.prank(owner1);
         wallet.executeTransaction(idx, signs);
 
     }

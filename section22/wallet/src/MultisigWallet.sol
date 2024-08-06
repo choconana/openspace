@@ -12,6 +12,7 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
 
     uint64 proposeId;
     Transaction[] txs;
+    mapping(uint64 => address) holders;
     mapping(address => bool) owners;
 
     struct Transaction {
@@ -49,6 +50,7 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
             data: _data
         });
         txs.push(tran);
+        holders[tran.id] = msg.sender;
         return tran.id;
     }
 
@@ -57,6 +59,8 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
     }
 
     function executeTransaction(uint64 idx, bytes[] memory signs) public {
+        require(holders[idx] == msg.sender, "no permission");
+        
         uint len = signs.length;
         if (len < 2) {
             revert SignerNotEnough(len);
