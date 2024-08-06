@@ -52,3 +52,9 @@
 [submodule "section19/dex/lib/forge-std"]
 	path = section19/dex/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "section22/wallet/lib/forge-std"]
+	path = section22/wallet/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "section22/wallet/lib/openzeppelin-contracts"]
+	path = section22/wallet/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
