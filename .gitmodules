@@ -58,3 +58,6 @@
 [submodule "section22/wallet/lib/openzeppelin-contracts"]
 	path = section22/wallet/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section23/gas_optimize/lib/forge-std"]
+	path = section23/gas_optimize/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
