@@ -10,6 +10,8 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
         "Transaction(uint64 id,address to,uint256 value,bytes data)"
     );
 
+    uint8 public constant SIGN_NUM = 2;
+
     uint64 proposeId;
     Transaction[] txs;
     mapping(uint64 => address) holders;
@@ -62,7 +64,7 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
         require(holders[idx] == msg.sender, "no permission to execute");
 
         uint len = signs.length;
-        if (len < 2) {
+        if (len < SIGN_NUM) {
             revert SignerNotEnough(len);
         }
 
@@ -74,7 +76,7 @@ contract MultisigWallet is EIP712("MultisigWallet", "1") {
             }
         }
 
-        if (count < 2) {
+        if (count < SIGN_NUM) {
             revert PermissionNotEnough();
         }
 
