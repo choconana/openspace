@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {Test, console} from "forge-std/Test.sol";
-import "@openzeppelin/contracts/utils/Multicall.sol";
 import "../src/AirdopMerkleNFTMarket.sol";
 import "../src/RToken.sol";
 import "../src/HNFT.sol";
@@ -74,7 +73,6 @@ contract AirdopMerkleNFTMarketTest is Test, IMarket {
         console.log("-------NFT ForSale-------\n  [tokenId:%s] of NFT's price is: ", tokenId, market.tokens(tokenId));
 
 
-        // Multicall.multicall();
 
         bytes32[] memory merkleProof = new bytes32[](3);
         merkleProof[0] = 0x1468288056310c82aa4c01a7e12a10f8111a0560e72b700555479031b86c357d;
@@ -84,8 +82,13 @@ contract AirdopMerkleNFTMarketTest is Test, IMarket {
         vm.prank(buyer);
 
         // buyer购买nft
-        market.permitPrePay(buyerSign, tokenId, deadline);
-        market.claimNFT(buyer, tokenId, merkleProof);
+        // market.permitPrePay(buyerSign, tokenId, deadline);
+        // market.claimNFT(buyer, tokenId, merkleProof);
+        bytes[] memory callData = new bytes[](2);
+        callData[0] = abi.encodeWithSelector(AirdopMerkleNFTMarket.permitPrePay.selector, buyerSign, tokenId, deadline);
+        callData[1] = abi.encodeWithSelector(AirdopMerkleNFTMarket.claimNFT.selector, buyer, tokenId, merkleProof);
+        market.multicall(callData);
+
         console.log("");
         console.log("-------NFT Trade-------");
         console.log("seller's token balance is: %s\n  buyer's token balance is: %s", rToken.balanceOf(seller), rToken.balanceOf(buyer));

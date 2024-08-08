@@ -3,11 +3,12 @@ pragma solidity ^0.8.20;
 
 import {console} from "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./HNFT.sol";
 import "./RToken.sol";
 import "./IMarket.sol";
 
-contract AirdopMerkleNFTMarket is IMarket {
+contract AirdopMerkleNFTMarket is IMarket, Multicall {
 
     bytes32 public immutable merkleRoot;
 
