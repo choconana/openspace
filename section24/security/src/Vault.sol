@@ -61,4 +61,17 @@ contract Vault {
       revert("not owner");
     }
   }
+
+  function withdraw() public {
+
+    if(canWithdraw && deposites[msg.sender] >= 0) {
+      (bool result,) = msg.sender.call{value: deposites[msg.sender]}("");
+      if(result) {
+        deposites[msg.sender] = 0;
+      }
+      
+    }
+
+  }
+
 }
