@@ -47,9 +47,11 @@ contract VaultExploiter is Test {
         require(vault.isSolve(), "solved");
         vm.stopPrank();
 
-        vm.prank(palyer);
+        vm.startPrank(palyer);
         myVault.withdraw(); 
         assertEq(1.1 ether, palyer.balance);
+        
+        vm.stopPrank();
     }
 
 }
