@@ -8,6 +8,8 @@ interface IMarket {
 
     event Cancel(bytes32 orderHash);
 
+    event Claimed(address indexed buyer, uint256 amount);
+
     error AmountIncorrect(address account, uint256 tokenId, uint256 price);
 
     error NFTOwnerIncorrect(address sender, uint256 tokenId, address owner);

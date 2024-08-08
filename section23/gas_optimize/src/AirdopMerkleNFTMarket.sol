@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {console} from "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./HNFT.sol";
 import "./RToken.sol";
@@ -18,6 +19,9 @@ contract AirdopMerkleNFTMarket is IMarket {
 
     RToken rToken;
 
+    mapping(uint256 => uint256) public tokens; 
+    mapping(uint256 => address) public buyers;
+
     struct NFTOrder {
         address seller;
         address nft;
@@ -27,8 +31,10 @@ contract AirdopMerkleNFTMarket is IMarket {
         uint256 deadline;
     }
 
-    constructor(bytes32 merkleRoot_) {
+    constructor(bytes32 merkleRoot_, address nft, address token) {
         merkleRoot = merkleRoot_;
+        hNFT = HNFT(nft);
+        rToken = RToken(token);
     }
 
     function forSale(bytes memory sellerSign, uint256 tokenId, uint256 amount, uint256 deadline) public returns (bool success) {
@@ -52,24 +58,24 @@ contract AirdopMerkleNFTMarket is IMarket {
 
     function claimNFT(
         address account,
-        uint256 amount,
+        uint256 tokenId,
         bytes32[] calldata merkleProof
     ) public {
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(account, amount));
-
+        bytes32 leaf = keccak256(abi.encodePacked(account));
         require(
-            MerkleProof.verify(merkleProof, merkleRoot, node),
+            MerkleProof.verify(merkleProof, merkleRoot, leaf),
             "MerkleDistributor: Invalid proof."
         );
 
-        uint256 discountPrice = amount / 2;
-        success =  rToken.transferFrom(buyer, nftOwner, discountPrice);
+        address nftOwner = hNFT.ownerOf(tokenId);
+        uint256 discountPrice = tokens[tokenId] / 2;
+        bool success =  rToken.transferFrom(account, nftOwner, discountPrice);
 
-        buyers[tokenId] = buyer;
-        hNFT.safeTransferFrom(nftOwner, buyer, tokenId, abi.encode(discountPrice));
+        buyers[tokenId] = account;
+        hNFT.safeTransferFrom(nftOwner, account, tokenId, abi.encode(discountPrice));
 
-        emit Claimed(account, amount);
+        emit Claimed(account, discountPrice);
     }
 
     function permitPrePay(bytes memory buyerSign, uint256 tokenId, uint256 deadline) public {
