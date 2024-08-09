@@ -124,9 +124,9 @@ contract NFTMarket is IMarket, IStakingPool, EIP712("NFTMarket", "1") {
     }
 
     function calInterest(uint256 fee) internal {
-        require(address(this).balance > 0, "balance must greater than 0");
+        require(totalEth > 0, "balance must greater than 0");
         interest_t = interest_t * (FEE_PERCENT + fee * FEE_PERCENT / totalEth) / FEE_PERCENT;
-        emit Log(interest_t, fee, address(this).balance);
+        emit Log(interest_t, fee, totalEth);
     }
 
     function stake() payable public {
