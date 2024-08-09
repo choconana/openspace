@@ -64,3 +64,6 @@
 [submodule "section23/gas_optimize/lib/openzeppelin-contracts"]
 	path = section23/gas_optimize/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "section25/time_task/lib/forge-std"]
+	path = section25/time_task/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
